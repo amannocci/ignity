@@ -1,0 +1,57 @@
+#!/bin/execlineb -S0
+
+# This is the shutdown script, running as process 1.
+cd /
+
+# Merge environments from our custom stage into current context
+with-env
+
+# This env decides if we should call s6-sync or not (default no)
+importas -D 1 -u IGNITY_SYNC_DISKS IGNITY_SYNC_DISKS
+
+# finalize: one-time finalize scripts
+foreground { /etc/s6/init/stage3-finalize }
+
+# Wait service down
+foreground { s6-echo "[ignity/finalize] Waiting for services" }
+foreground {
+  if { s6-test -f /run/ignity/services-state }
+  importas -D 16000 -u IGNITY_SERVICES_GRACETIME IGNITY_SERVICES_GRACETIME
+  elglob SERVICES /run/ignity/services-state/*
+  foreground { s6-svwait -D -t ${IGNITY_SERVICES_GRACETIME} ${SERVICES} }
+  s6-sleep -m 200
+}
+
+# Sync before TERM'n
+foreground {
+  if { s6-test ${IGNITY_SYNC_DISKS} -eq 1 }
+  foreground { s6-echo "[ignity/finalize] Syncing disks" }
+  foreground { s6-sync }
+}
+
+# Kill everything, gently.
+foreground { s6-echo "[ignity/finalize] Sending all processes the down signal" }
+foreground { s6-nuke -th } # foreground is process 1: it survives
+foreground {
+  importas -D 3000 -u IGNITY_KILL_GRACETIME IGNITY_KILL_GRACETIME
+  s6-sleep -m -- ${IGNITY_KILL_GRACETIME}
+}
+
+# Last message, then close our pipes and give the logger some time.
+foreground { s6-echo "[ignity/finalize] Sending all processes the KILL signal and exiting" }
+fdclose 1 fdclose 2
+s6-sleep -m 200
+
+# Kill everything, brutally.
+foreground { s6-nuke -k } # foreground is process 1: it survives again
+
+# Reap all the zombies then sync, and we're done.
+wait { }
+foreground {
+  if { s6-test ${IGNITY_SYNC_DISKS} -eq 1 }
+  s6-sync
+}
+
+# Use CMD exit code defaulting to zero if not present.
+importas -u -D 0 IGNITY_STAGE2_EXITED IGNITY_STAGE2_EXITED
+exit ${IGNITY_STAGE2_EXITED}

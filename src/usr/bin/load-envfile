@@ -1,0 +1,3 @@
+#!/bin/execlineb -S0
+/bin/export PATH /usr/bin:/bin
+envfile - $@

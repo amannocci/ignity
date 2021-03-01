@@ -1,0 +1,20 @@
+#!/bin/execlineb -S0
+
+if {
+  if -t { s6-test -d /run/ignity/init }
+  if { s6-echo "[ignity/init] Executing container init scripts" }
+  if {
+    pipeline { s6-ls -0 -- /run/ignity/init }
+    pipeline { s6-sort -0 -- }
+    forstdin -o 0 -0 -- i
+    importas -u i i
+    if { s6-echo -- "[ignity/init] Executing init script: ${i}..." }
+    foreground { /run/ignity/init/${i} }
+    importas -u ? ?
+    if { s6-echo -- "[ignity/init] Init script ${i} exited ${?}." }
+    exit ${?}
+  }
+  if { s6-echo -- "[ignity/init] Init scripts executed" }
+}
+
+$@

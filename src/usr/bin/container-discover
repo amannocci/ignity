@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+
+# Found current script directory
+readonly RELATIVE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+########################################
+# Compute smallest value that is greater than or equal to the argument.
+# Arguments:
+#   Number to ceil.
+# Outputs:
+#   Result of computation.
+########################################
+function math::ceiling() {
+  awk -vnumber="$1" -vdiv="$2" '
+    function ceiling(x){
+      return x%1 ? int(x)+1 : x
+    }
+    BEGIN{
+      print ceiling(number/div)
+    }
+  '
+}
+
+########################################
+# Discover cpu limit based on the cgroup limits.
+# Figure out the max number of core we should utilize.
+# Globals:
+#   CONTAINER_CPU_LIMIT
+# Arguments:
+#   None.
+# Outputs:
+#   Cpu limit discovered.
+########################################
+function discover_cpu_limit() {
+  # Manually defined
+  if [[ "${CONTAINER_CPU_LIMIT}" ]]; then
+    echo "${CONTAINER_CPU_LIMIT}"
+    return 0
+  fi
+
+  # Read cgroups limit
+  local cpu_period_file=${SYS_CPU_PERIOD_FILE:-/sys/fs/cgroup/cpu/cpu.cfs_period_us}
+  local cpu_quota_file=${SYS_CPU_QUOTA_FILE:-/sys/fs/cgroup/cpu/cpu.cfs_quota_us}
+  local cpu_period cpu_quota
+
+  # cfs_quota_us == -1 --> no restrictions
+  if { cpu_period=$(cat "$cpu_period_file") && \
+	cpu_quota=$(cat "$cpu_quota_file") && \
+	[[ "$cpu_quota" != -1 ]] ;} 2>/dev/null ; then
+    math::ceiling "$cpu_quota" "$cpu_period"
+  else
+    nproc
+  fi
+}
+
+########################################
+# Discover mem limit based on the cgroup limits.
+# Figure out the max number of ram we should utilize.
+# Globals:
+#   CONTAINER_MEM_LIMIT
+# Arguments:
+#   None.
+# Outputs:
+#   Mem limit discovered.
+########################################
+function discover_mem_limit() {
+  # Manually defined
+  if [[ "${CONTAINER_MEM_LIMIT}" ]]; then
+    echo "${CONTAINER_MEM_LIMIT}"
+    return 0
+  fi
+
+  # Max memory of host
+  local mem_limit
+  mem_limit="$(awk '/MemTotal/ {printf "%.0f", $2*1024}' /proc/meminfo)"
+
+  # Read cgroups limit
+  local max_mem_unbounded_file=${SYS_MAX_MEM_UNBOUNDED_FILE:-/sys/fs/cgroup/memory/memory.memsw.limit_in_bytes}
+  local mem_file=${SYS_MEM_FILE:-/sys/fs/cgroup/memory/memory.limit_in_bytes}
+  local max_mem max_mem_unbounded
+
+  # High number which is the max limit until which memory is supposed to be unbounded.
+  if { max_mem=$(cat "$mem_file") && \
+    max_mem_unbounded=$(cat "$max_mem_unbounded_file") && \
+    [[ "$max_mem" -le "$max_mem_unbounded" ]] ;} 2>/dev/null ; then
+    echo "$max_mem"
+  else
+    echo "$mem_limit"
+  fi
+}
+
+########################################
+# Discover limits based on the cgroup limits.
+# Globals:
+#   CONTAINER_CPU_LIMIT
+#   CONTAINER_MEM_LIMIT
+# Arguments:
+#   None.
+########################################
+function main() {
+  local container_cpu_limit=$(discover_cpu_limit)
+  echo "${container_cpu_limit}" > /run/ignity/envs/CONTAINER_CPU_LIMIT
+  echo "Container cpu limit: ${container_cpu_limit}"
+
+  local container_mem_limit=$(discover_mem_limit)
+  echo "${container_mem_limit}" > /run/ignity/envs/CONTAINER_MEM_LIMIT
+  echo "Container mem limit: ${container_mem_limit}"
+}
+
+main

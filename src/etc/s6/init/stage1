@@ -1,0 +1,34 @@
+#!/bin/execlineb -S0
+
+## For consistency cleanup ignity run directory
+if {
+  pipeline { s6-ls -0 -- /run/ignity }
+  forstdin -o 0 -0 -- i
+  importas -u file i
+  s6-rmrf -- /run/ignity/${file}
+}
+
+# Setup ignity context
+if { s6-mkdir -pm 0755 -- /run/ignity }
+if { s6-mkdir -pm 0755 -- /run/ignity/envs }
+if { s6-mkdir -pm 0755 -- /run/ignity/perms }
+if { s6-mkdir -pm 0755 -- /run/ignity/init }
+if { s6-mkdir -pm 0755 -- /run/ignity/finalize }
+if { s6-mkdir -pm 0755 -- /run/ignity/services }
+if { s6-mkdir -pm 0755 -- /run/ignity/services-state }
+
+# Init the scandir with our base services
+if { s6-hiercopy /etc/s6/services /run/ignity/services-state }
+
+# Load default envs
+/etc/s6/init/stage1-envs
+
+## Fork the "stage2" script
+background { with-env /etc/s6/init/stage2 $@ }
+unexport !
+
+# Run the rest of stage 1 with sanitized descriptors
+redirfd -r 0 /dev/null
+
+# Start the supervision tree
+with-env s6-svscan -t0 /run/ignity/services-state

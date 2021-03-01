@@ -1,0 +1,23 @@
+#!/bin/execlineb -S0
+
+importas -D 5000 -u IGNITY_KILL_FINISH_MAXTIME IGNITY_KILL_FINISH_MAXTIME
+if {
+  if -t { s6-test -d /run/ignity/finalize }
+  if { s6-echo "[ignity/finalize] Executing container finalize scripts..." }
+  if {
+    pipeline { s6-ls -0 -- /run/ignity/finalize }
+    pipeline { s6-sort -0 -- }
+    forstdin -o 0 -0 -- i
+    importas -u i i
+    if { s6-echo -- "[ignity/finalize] Executing finalize script: ${i}... " }
+    foreground {
+      s6-maximumtime -k ${IGNITY_KILL_FINISH_MAXTIME}
+      /run/ignity/finalize/${i}
+    }
+    importas -u ? ?
+    s6-echo -- "[ignity/finalize] Finalize script ${i} exited ${?}."
+  }
+  s6-echo -- "[ignity/finalize] Finalize scripts executed"
+}
+
+$@

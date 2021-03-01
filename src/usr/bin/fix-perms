@@ -1,0 +1,39 @@
+#!/bin/execlineb -P
+
+/bin/export PATH /usr/bin:/bin
+
+# Import user uid:gid
+importas -u USERMAP_UID USERMAP_UID
+importas -u USERMAP_GID USERMAP_GID
+
+# Process each line
+forstdin -d"\n" -- line
+importas -u line line
+
+# Test each line isn't empty
+if { s6-test -n ${line} }
+
+# Split each line
+multidefine -0 -Cd" \t" -- ${line} { path uidgid fmode dmode }
+backtick -n UID_GID {
+  pipeline { s6-echo ${uidgid} }
+  sed -e "s/{{USERMAP_UID}}/${USERMAP_UID}/g" -e "s/{{USERMAP_GID}}/${USERMAP_GID}/g"
+}
+importas -u UID_GID UID_GID
+
+multidefine -Cd":" -- ${UID_GID} { uid gid }
+
+# Check path exists
+if { s6-test -e ${path} }
+
+# Fix owners
+pipeline { find "${path}" -not -gid "${gid}" -or -not -uid "${uid}" -print0 }
+foreground { chown -R "${uid}:${gid}" "${path}" }
+
+# Fix files permissions
+pipeline { find "${path}" -not -type d -not -perm "${fmode}" -print0 }
+foreground { xargs -0 -r -n256 chmod "${fmode}" }
+
+# Fix directories permissions
+pipeline { find "${path}" -type d -print0 -not -perm "${dmode}" }
+foreground { xargs -0 -r -n256 chmod "${dmode}" }

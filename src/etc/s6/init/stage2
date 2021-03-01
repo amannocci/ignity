@@ -1,0 +1,59 @@
+#!/bin/execlineb -S0
+
+# This file is executed (not as process 1!) as soon as s6-svscan
+# starts, with the original stdin/out/err, but NOT the original environment.
+# Purpose of this file: to perform all the one-time initialization tasks.
+
+foreground {
+  if {
+    foreground {
+      # Copy user provided files to /run/ignity.
+      if {
+        if { s6-echo -n -- "[ignity/boot] Making user provided files available at /run/ignity" }
+        foreground {
+          forx i { "init" "perms" "finalize" "services" }
+          importas -u i i
+          if { s6-test -d /etc/ignity/${i} }
+          # although s6-hiercopy is prefered, and until it doesn't support 'follow symlinks'
+          # option, there is no clean way to allow symlinks between user provided runcoms.
+          if { s6-hiercopy /etc/ignity/${i} /run/ignity/${i} }
+        }
+        importas -u ? ? if { s6-echo -- " exited ${?}." }
+        exit ${?}
+      }
+
+      # perms: apply user-provided ownership & permission fixes
+      /etc/s6/init/stage2-perms
+
+      # init: one-time init scripts
+      /etc/s6/init/stage2-init
+
+      # services: long-lived processes to be supervised
+      /etc/s6/init/stage2-services
+    }
+
+    importas -u ? ?
+    foreground { redirfd -w 1 /run/ignity/envs/IGNITY_STAGE2_EXITED s6-echo -n -- "${?}" } 
+    exit ${?}
+  }
+
+  # The init is complete, If the user has a given CMD, run it now, then kill everything when it exits.
+  if -t { s6-test $# -ne 0 }
+  foreground { with-env s6-setsid -gq -- $@ }
+
+  importas -u ? ?
+  foreground { s6-echo -- "[ignity/cmd] ${1} exited ${?}" }
+
+  # Make CMD exit code available in stage3
+  foreground { redirfd -w 1 /run/ignity/envs/IGNITY_STAGE2_EXITED s6-echo -n -- "${?}" }
+
+  # Stop supervision tree
+  foreground { s6-svscanctl -t /run/ignity/services-state }
+
+  # Wait to be nuked
+  s6-pause -th
+}
+
+importas -u ? ?
+if { s6-test ${?} -ne 0 }
+s6-svscanctl -t /run/ignity/services-state

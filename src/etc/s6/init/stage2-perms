@@ -1,0 +1,29 @@
+#!/bin/execlineb -S0
+
+importas -D root USER USER
+importas -D 0 USERMAP_UID USERMAP_UID
+importas -D 0 USERMAP_GID USERMAP_GID
+foreground {
+  if -n { redirfd -c 2 /dev/null redirfd -c 1 /dev/null id -u "${USER}" }
+  if { groupadd -g "${USERMAP_GID}" "${USER}" }
+  if { useradd -M -u "${USERMAP_UID}" -g "${USERMAP_GID}" -s /bin/false "${USER}" }
+}
+
+if {
+  if -t { s6-test -d /run/ignity/perms }
+  if { s6-echo -- "[ignity/perm] Applying ownership & permissions fixes" }
+  if {
+    pipeline { s6-ls -0 -- /run/ignity/perms }
+    pipeline { s6-sort -0 -- }
+    forstdin -0 -- i
+    importas -u i i
+    if { s6-echo -- "[ignity/perm] Applying ownership & permission fixes: ${i}... " }
+    foreground { redirfd -r 0 /run/ignity/perms/${i} fix-attrs }
+    importas -u ? ?
+    if { s6-echo -- "[ignity/perm] Ownership & permission fixes ${i} exited ${?}." }
+    exit ${?}
+  }
+  if { s6-echo -- "[ignity/perm] Ownership & permissions fixes applied" }
+}
+
+$@

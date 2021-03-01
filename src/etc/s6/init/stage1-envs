@@ -1,0 +1,24 @@
+#!/bin/execlineb -S0
+
+if { s6-mkdir -pm 0755 -- /run/ignity/envs-container }
+if { s6-dumpenv "/run/ignity/envs-container" }
+
+if {
+  if -t { s6-test -d /run/ignity/envs }
+  if { s6-echo "[ignity/env] Loading environment files" }
+  if {
+    pipeline { s6-ls -0 -- /run/ignity/envs }
+    pipeline { s6-sort -0 -- }
+    forstdin -o 0 -0 -- i
+    importas -u file i
+    if { s6-echo -- "[ignity/env] Loading environment file: ${file}..." }
+    redirfd -r 0 /run/ignity/envs/${file} load-envfile
+    if { s6-dumpenv "/run/ignity/envs" }
+  }
+  if { s6-echo -- "[ignity/env] Environment files loaded" }
+}
+
+if { s6-hiercopy "/run/ignity/envs-container" "/run/ignity/envs" }
+if { s6-rmrf "/run/ignity/envs-container" }
+
+$@

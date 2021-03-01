@@ -1,0 +1,4 @@
+#!/bin/execlineb -P
+foreground { s6-echo "Operating system info" }
+foreground { s6-cat /proc/version }
+foreground { container-discover }
