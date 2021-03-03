@@ -67,6 +67,12 @@ The following steps will ensure your project is cloned properly.
 ENTRYPOINT [ "/init" ]
 ```
 
+### How to use ignity with a `CMD`
+
+* Using `CMD` is a really convenient way to take advantage of `ignity`.
+* Your `CMD` can be given at build-time in the Dockerfile, or at runtime on the command line, either way is fine.
+* It will be run under the s6 supervisor, and when it fails or exits, the container will exit. You can even run interactive programs under the s6 supervisor !
+
 ### How to load env files
 
 * Sometimes it's interesting to load env files to define default variables.
@@ -80,6 +86,50 @@ ENTRYPOINT [ "/init" ]
 * Put a `run` file into it, this is the file in which you'll put your long-lived process execution
 * You're done! If you want to know more about s6 supervision of servicedirs take a look to [`servicedir`](https://skarnet.org/software/s6/servicedir.html) documentation.
 
+### How to run hook on service exit
+
+* By default, services created in `/etc/ignity/services` will automatically restart.
+* If a service should bring the container down, you'll need to write a `finish` script that does that.
+
+`/etc/ignity/services/myapp/finish`:
+```
+#!/bin/execlineb -S0
+
+s6-svscanctl -t /run/ignity/services-state
+```
+
+* It's possible to do more advanced operations.
+
+`/etc/ignity/services/myapp/finish`:
+```
+#!/bin/execlineb -S1
+if { s6-test ${1} -ne 0 }
+if { s6-test ${1} -ne 256 }
+
+s6-svscanctl -t /run/ignity/services-state
+```
+
+### How to execute initialization And/Or finalization tasks
+
+* Just before starting user provided services.
+* `ignity` will execute in order all scripts present in `/etc/ignity/init`.
+* And in parallel of bringing down user provided services.
+* `ignity` will execute in order all scripts present in `/etc/ignity/finalize`.
+* You can use this mecanism to setup the container or validate everything or clean some resources before container exit.
+
+### How to set container environment variables
+
+* If you want your custom script to have container environments available just make use of `with-env` helper, which will push all of those into your execution environment, for example:
+
+`/etc/ignity/init/01-example`:
+```sh
+#!/usr/bin/with-env sh
+echo $MYENV
+```
+
+* This script will output whatever the `MYENV` enviroment variable contains.
+* This helper is only here for custom environments variables pushed in `/run/ignity/envs` directory.
+
 ### How to run a container with non root user
 * To run a container with a non root user, you have to define files and directories permissions in `perms` and then define the following in the Dockerfile
 
@@ -88,11 +138,20 @@ ENV \
   USERMAP_UID="1000" \
   USERMAP_GID="1000" \
   USER="exploit"
-RUN stage2-perms
+RUN /etc/s6/init/stage2-perms
 USER ${USERMAP_UID}:${USERMAP_GID}
 ```
 
 * This will correct permissions at build time instead of runtime and will let the container start properly with a non root user.
+
+### How to run a container in read-only mode
+* To run the container in read-only mode, you will have to mount a tmpfs at `/run/ingity`.
+* If you want to run it with a non root user, you will also need to match uid able to write, execute and read on this location.
+
+```yaml
+tmpfs:
+  - '/run/ignity:exec,mode=1777,uid=<uid>'
+```
 
 ### How to fix ownership & permissions
 
@@ -115,28 +174,37 @@ path recurse account fmode dmode
 
 ### How to drop privileges
 
-When it comes to executing a service, no matter it's a service or a logging service, a very good practice is to drop privileges before executing it. `s6` already includes utilities to do exactly these kind of things:
+* When it comes to executing a service, no matter it's a service or a logging service, a very good practice is to drop privileges before executing it. 
+* `s6` already includes utilities to do exactly these kind of things:
 
 In `execline`:
-
 ```sh
-#!/usr/bin/env execlineb -P
+#!/bin/execlineb -P
 s6-setuidgid daemon
-myservice
+myapp
 ```
 
 In `sh`:
-
 ```sh
 #!/usr/bin/env sh
 exec s6-setuidgid daemon myservice
 ```
 
-If you want to know more about these utilities, please take a look to: [`s6-setuidgid`](http://skarnet.org/software/s6/s6-setuidgid.html), [`s6-envuidgid`](http://skarnet.org/software/s6/s6-envuidgid.html) and [`s6-applyuidgid`](http://skarnet.org/software/s6/s6-applyuidgid.html).
+* If you want to know more about these utilities, please take a look to: [`s6-setuidgid`](http://skarnet.org/software/s6/s6-setuidgid.html), [`s6-envuidgid`](http://skarnet.org/software/s6/s6-envuidgid.html) and [`s6-applyuidgid`](http://skarnet.org/software/s6/s6-applyuidgid.html).
 
 ### How to allow high inheritance
 * It's convenient to prefix every scripts in `envs`, `perms`, `init` and `finalize` by number (two chars) to ensure execution order.
 * A common pattern is to dedicated 10 number by docker image layer to allow logic evolution.
+
+## How to customize `ignity` behaviour
+
+It is possible somehow to tweak `ignity` behaviour by providing an already predefined set of environment variables to the execution context:
+
+* `IGNITY_CMD_WAIT_FOR_SERVICES_MAXTIME` (default = 5000): The maximum time (in milliseconds) the services could take to bring up before proceding to CMD executing.
+* `IGNITY_CMD_WAIT_FOR_SERVICES` (default = 0): In order to proceed executing CMD overlay will wait until services are up. Be aware that up doesn't mean ready. Depending if `notification-fd` was found inside the servicedir overlay will use `s6-svwait -U` or `s6-svwait -u` as the waiting statement.
+* `IGNITY_KILL_FINALIZE_MAXTIME` (default = 5000): The maximum time (in milliseconds) a script in `/etc/ignity/finalize` could take before sending a `KILL` signal to it. Take into account that this parameter will be used per each script execution, it's not a max time for the whole set of scripts.
+* `IGNITY_KILL_GRACETIME` (default = 3000): How long (in milliseconds) `ignity` should wait to reap zombies before sending a `KILL` signal.
+* `IGNITY_SERVICES_GRACETIME` (default = 5000): How long (in milliseconds) `ignity` should wait to reap zombies before sending a down signal.
 
 ## Contributing
 If you find this project useful here's how you can help :
