@@ -45,13 +45,25 @@ The following steps will ensure your project is cloned properly.
 
 ### How it works
 * We use `s6` as supervision suite.
+* `ignity` is a wrapper around `s6`.
+* There are three different stage.
+* The first stage is responsible of set up container environment.
+* It will create `ignity` runtime directories.
+* Load & merge defined variables.
+* The second stage will then run `perms` & `init` scripts.
+* If everything is alright then it will start all services.
+* If a command is defined, it will run after a defined delay and then exit.
+* If a command isn't defined, it will run forever until a explicit signal or a crash.
+* The third stage is responsible to bringing down the container.
+* It will stop services and in parallel will run `finalize` scripts.
+* It will then kill everything and exit.
 
 ### Available configuration parameters
 | Parameter | Description | Value (Current) |
 | --------- | ----------- | --------------- |
 | `IGNITY_CMD_WAIT_FOR_SERVICES_MAXTIME` | The maximum time (in milliseconds) the services could take to bring up before proceding to CMD executing | 5000 |
 | `IGNITY_CMD_WAIT_FOR_SERVICES` | In order to proceed executing CMD overlay will wait until services are up | 0 |
-| `IGNITY_KILL_FINISH_MAXTIME` | The maximum time (in milliseconds) a script in `/etc/ignity/finalize` could take before sending a `KILL` signal to it | 5000 |
+| `IGNITY_KILL_FINALIZE_MAXTIME` | The maximum time (in milliseconds) a script in `/etc/ignity/finalize` could take before sending a `KILL` signal to it | 5000 |
 | `IGNITY_KILL_GRACETIME` | How long (in milliseconds) `ignity` should wait to reap zombies before sending a `KILL` signal | 3000 |
 | `IGNITY_SERVICES_GRACETIME` | How long (in milliseconds) `ignity` should wait services down before sending a down signal | 5000 |
 | `USER` | User name to map with uid and gid | root |
@@ -59,7 +71,6 @@ The following steps will ensure your project is cloned properly.
 | `USERMAP_UID` | User uid to map on files | 0 |
 
 ### How to use ignity as `ENTRYPOINT`
-
 * By default, `ignity` isn't set as entrypoint.
 * If you want to use it to handle services and all specifics stuff you have to explicitly define it as entrypoint.
 
@@ -68,26 +79,22 @@ ENTRYPOINT [ "/init" ]
 ```
 
 ### How to use ignity with a `CMD`
-
 * Using `CMD` is a really convenient way to take advantage of `ignity`.
 * Your `CMD` can be given at build-time in the Dockerfile, or at runtime on the command line, either way is fine.
 * It will be run under the s6 supervisor, and when it fails or exits, the container will exit. You can even run interactive programs under the s6 supervisor !
 
 ### How to load env files
-
 * Sometimes it's interesting to load env files to define default variables.
 * You can simply put any env files in `/etc/ignity/envs` and they will be loaded during runtime in order.
 * They will be overrided by container environments variables.
 
 ### How to supervise a service
-
 * Creating a supervised service cannot be easier
 * Just create a service directory with the name of your service into `/etc/ignity/services`
 * Put a `run` file into it, this is the file in which you'll put your long-lived process execution
 * You're done! If you want to know more about s6 supervision of servicedirs take a look to [`servicedir`](https://skarnet.org/software/s6/servicedir.html) documentation.
 
 ### How to run hook on service exit
-
 * By default, services created in `/etc/ignity/services` will automatically restart.
 * If a service should bring the container down, you'll need to write a `finish` script that does that.
 
@@ -109,8 +116,7 @@ if { s6-test ${1} -ne 256 }
 s6-svscanctl -t /run/ignity/services-state
 ```
 
-### How to execute initialization And/Or finalization tasks
-
+### How to execute initialization and/or finalization tasks
 * Just before starting user provided services.
 * `ignity` will execute in order all scripts present in `/etc/ignity/init`.
 * And in parallel of bringing down user provided services.
@@ -118,7 +124,6 @@ s6-svscanctl -t /run/ignity/services-state
 * You can use this mecanism to setup the container or validate everything or clean some resources before container exit.
 
 ### How to set container environment variables
-
 * If you want your custom script to have container environments available just make use of `with-env` helper, which will push all of those into your execution environment, for example:
 
 `/etc/ignity/init/01-example`:
@@ -154,7 +159,6 @@ tmpfs:
 ```
 
 ### How to fix ownership & permissions
-
 * Sometimes it's interesting to fix ownership & permissions before proceeding because, for example, you have mounted/mapped a host folder inside your container.
 * Ignity provides a way to tackle this issue using files in `/etc/ignity/perms`.
 * The pattern format followed by fix-perms files:
@@ -173,7 +177,6 @@ path recurse account fmode dmode
 * They will be replaced at runtime or build time based on case. 
 
 ### How to drop privileges
-
 * When it comes to executing a service, no matter it's a service or a logging service, a very good practice is to drop privileges before executing it. 
 * `s6` already includes utilities to do exactly these kind of things:
 
@@ -196,7 +199,7 @@ exec s6-setuidgid daemon myservice
 * It's convenient to prefix every scripts in `envs`, `perms`, `init` and `finalize` by number (two chars) to ensure execution order.
 * A common pattern is to dedicated 10 number by docker image layer to allow logic evolution.
 
-## How to customize `ignity` behaviour
+### How to customize `ignity` behaviour
 
 It is possible somehow to tweak `ignity` behaviour by providing an already predefined set of environment variables to the execution context:
 

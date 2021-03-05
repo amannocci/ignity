@@ -30,7 +30,7 @@ foreground {
 }
 
 # Kill everything, gently.
-foreground { s6-echo "[ignity/finalize] Sending all processes the down signal" }
+foreground { s6-echo "[ignity/finalize] Sending all processes the KILL signal" }
 foreground { s6-nuke -th } # foreground is process 1: it survives
 foreground {
   importas -D 3000 -u IGNITY_KILL_GRACETIME IGNITY_KILL_GRACETIME
