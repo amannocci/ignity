@@ -52,11 +52,16 @@ function command::setup() {
 }
 
 function command::test() {
-  local docker_image_tag=$(tr -dc a-z </dev/urandom | head -c 16 ; echo '')
-  echo "Building docker image with tag: ignity-${docker_image_tag}"
-  DOCKER_IMAGE_TAG=${docker_image_tag} DOCKERFILE_PATH=tests/Dockerfile.tpl docker::build
-  export DOCKER_IMAGE="ignity-${docker_image_tag}"
-  bats -t ${BASE_PROJECT}/tests
+  declare -a kinds
+  kinds=( "boot" "envs" )
+
+  for kind in "${kinds[@]}"; do
+    local docker_image_tag=$(tr -dc a-z </dev/urandom | head -c 16 ; echo '')
+    echo "Building docker image with tag: ignity-${docker_image_tag}"
+    DOCKER_IMAGE_TAG=${docker_image_tag} DOCKERFILE_PATH="tests/${kind}/Dockerfile.tpl" docker::build
+    export DOCKER_IMAGE="ignity-${docker_image_tag}"
+    bats -t "${BASE_PROJECT}/tests/${kind}"
+  done
 }
 
 function command::package() {
