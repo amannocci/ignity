@@ -53,7 +53,7 @@ function command::setup() {
 
 function command::test() {
   declare -a kinds
-  kinds=( "boot" "envs" )
+  kinds=( "boot" "envs" "init" "finalize" )
 
   for kind in "${kinds[@]}"; do
     local docker_image_tag=$(tr -dc a-z </dev/urandom | head -c 16 ; echo '')
