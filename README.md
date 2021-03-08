@@ -70,6 +70,16 @@ The following steps will ensure your project is cloned properly.
 | `USERMAP_GID` | User gid to map on files | 0 |
 | `USERMAP_UID` | User uid to map on files | 0 |
 
+### How to integrate ignity in your project from source
+* You can simply `git clone` the project in the scope of the dockerfile.
+* And then build your image as usual.
+
+```Dockerfile
+# Install ignity from source
+COPY ignity/src /
+RUN bash /usr/src/install-ignity.sh \
+```
+
 ### How to use ignity as `ENTRYPOINT`
 * By default, `ignity` isn't set as entrypoint.
 * If you want to use it to handle services and all specifics stuff you have to explicitly define it as entrypoint.
