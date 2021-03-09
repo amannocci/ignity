@@ -1,0 +1,2 @@
+#!/usr/bin/with-env bash
+touch /run/ignity/services/no-start-at-runtime/down

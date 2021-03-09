@@ -126,6 +126,14 @@ if { s6-test ${1} -ne 256 }
 s6-svscanctl -t /run/ignity/services-state
 ```
 
+### How to start a service on-demand
+* By default, all services are started at runtime.
+* You can delay or disable automatic start by creating a `down` file in the [service directory](https://skarnet.org/software/s6/servicedir.html).
+* This file can be created at build time in `/etc/ignity/services/myapp/down`.
+* Or at runtime by creating the file in `/run/ignity/services/myapp/down` using init scripts.
+* Note that after first services start the service directory is `/run/ignity/services-state` instead of `/run/ignity/services`.
+* Then you can start it manually by removing the file in `/run/ignity/services-state/myapp/down` and by calling `s6-svc -u /run/ignity/services-state/myapp`.
+
 ### How to execute initialization and/or finalization tasks
 * Just before starting user provided services.
 * `ignity` will execute in order all scripts present in `/etc/ignity/init`.
