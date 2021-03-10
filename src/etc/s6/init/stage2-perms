@@ -18,7 +18,7 @@ if {
     forstdin -0 -- i
     importas -u i i
     if { s6-echo -- "[ignity/perm] Applying ownership & permission fixes: ${i}... " }
-    foreground { redirfd -r 0 /run/ignity/perms/${i} fix-attrs }
+    foreground { redirfd -r 0 /run/ignity/perms/${i} fix-perms }
     importas -u ? ?
     if { s6-echo -- "[ignity/perm] Ownership & permission fixes ${i} exited ${?}." }
     exit ${?}
