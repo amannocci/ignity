@@ -1,0 +1,1 @@
+/var/www/dynamic-uid-gid {{USERMAP_UID}}:{{USERMAP_GID}} 0644 0755

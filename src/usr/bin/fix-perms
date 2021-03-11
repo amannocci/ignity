@@ -3,8 +3,8 @@
 /bin/export PATH /usr/bin:/bin
 
 # Import user uid:gid
-importas -u USERMAP_UID USERMAP_UID
-importas -u USERMAP_GID USERMAP_GID
+importas -D 0 -u USERMAP_UID USERMAP_UID
+importas -D 0 -u USERMAP_GID USERMAP_GID
 
 # Process each line
 forstdin -d"\n" -- line
