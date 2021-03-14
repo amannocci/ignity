@@ -19,3 +19,15 @@ export DOCKER_ARGS="-e IGNITY_KILL_GRACETIME=0 -e IGNITY_KILL_FINALIZE_MAXTIME=0
   echo 'ls -alh /var/www/dynamic-uid-gid | grep "exploit exploit"' | DOCKER_ARGS="${DOCKER_ARGS} -e USERMAP_UID=1000 -e USERMAP_GID=1000 -e USER=exploit" docker::run
   [ "$?" -eq 0 ]
 }
+
+@test "check skip perms stage" {
+  result=$(echo 'test -d /etc/ignity' | DOCKER_ARGS="${DOCKER_ARGS} -e IGNITY_SKIP_PERMS=1" docker::run)
+  echo "${result}" | grep -v "Applying ownership & permissions fixes"
+  [ "$?" -eq 0 ]
+}
+
+@test "check execution perms stage" {
+  result=$(echo 'test -d /etc/ignity' | DOCKER_ARGS="${DOCKER_ARGS} -e IGNITY_SKIP_PERMS=0" docker::run)
+  echo "${result}" | grep "Applying ownership & permissions fixes"
+  [ "$?" -eq 0 ]
+}

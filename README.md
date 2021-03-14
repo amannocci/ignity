@@ -192,7 +192,8 @@ path recurse account fmode dmode
 * `dmode`: Target dir/folder mode. For example, `0755`.
 
 * You can use variables `{{USERMAP_UID}}` and `{{USERMAP_GID}}` in those files.  
-* They will be replaced at runtime or build time based on case. 
+* They will be replaced at runtime or build time based on case.
+* You can also skip the permission phase by using `IGNITY_SKIP_PERMS=1`
 
 ### How to drop privileges
 * When it comes to executing a service, no matter it's a service or a logging service, a very good practice is to drop privileges before executing it. 
