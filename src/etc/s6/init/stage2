@@ -11,7 +11,7 @@ foreground {
       if {
         if { s6-echo -n -- "[ignity/boot] Making user provided files available at /run/ignity" }
         foreground {
-          forx i { "init" "perms" "finalize" "services" }
+          forx i { "init" "finalize" "services" }
           importas -u i i
           if { s6-test -d /etc/ignity/${i} }
           # although s6-hiercopy is prefered, and until it doesn't support 'follow symlinks'

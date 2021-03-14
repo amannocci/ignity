@@ -20,15 +20,15 @@ ifelse {
 }
 
 if {
-  if -t { s6-test -d /run/ignity/perms }
+  if -t { s6-test -d /etc/ignity/perms }
   if { s6-echo -- "[ignity/perm] Applying ownership & permissions fixes" }
   if {
-    pipeline { s6-ls -0 -- /run/ignity/perms }
+    pipeline { s6-ls -0 -- /etc/ignity/perms }
     pipeline { s6-sort -0 -- }
     forstdin -0 -- i
     importas -u i i
     if { s6-echo -- "[ignity/perm] Applying ownership & permission fixes: ${i}... " }
-    foreground { redirfd -r 0 /run/ignity/perms/${i} fix-perms }
+    foreground { redirfd -r 0 /etc/ignity/perms/${i} fix-perms }
     importas -u ? ?
     if { s6-echo -- "[ignity/perm] Ownership & permission fixes ${i} exited ${?}." }
     exit ${?}
