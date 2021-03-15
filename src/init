@@ -2,4 +2,4 @@
 
 /bin/importas -D /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin PATH PATH
 export PATH ${PATH}
-/etc/s6/init/stage1 $@
+/etc/s6/boot/stage1 $@

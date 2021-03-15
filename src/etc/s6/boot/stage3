@@ -10,7 +10,7 @@ with-env
 importas -D 1 -u IGNITY_SYNC_DISKS IGNITY_SYNC_DISKS
 
 # finalize: one-time finalize scripts
-foreground { /etc/s6/init/stage3-finalize }
+foreground { /etc/s6/boot/stage3-finalize }
 
 # Wait service down
 foreground { s6-echo "[ignity/finalize] Waiting for services" }

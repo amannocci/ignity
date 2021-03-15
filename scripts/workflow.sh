@@ -53,7 +53,7 @@ function command::setup() {
 
 function command::test() {
   declare -a kinds
-  kinds=( "boot" "envs" "perms" "init" "finalize" "services" )
+  kinds=( "preboot" "boot" "envs" "perms" "init" "finalize" "services" )
 
   local status=0
   for kind in "${kinds[@]}"; do

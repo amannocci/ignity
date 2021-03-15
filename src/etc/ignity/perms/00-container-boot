@@ -1,5 +1,0 @@
-/run/ignity {{USERMAP_UID}}:{{USERMAP_GID}} 0644 0755
-/run/ignity/finalize {{USERMAP_UID}}:{{USERMAP_GID}} 0555 0755
-/run/ignity/init {{USERMAP_UID}}:{{USERMAP_GID}} 0555 0755
-/run/ignity/services {{USERMAP_UID}}:{{USERMAP_GID}} 0555 0755
-/run/ignity/services-state {{USERMAP_UID}}:{{USERMAP_GID}} 0555 0755

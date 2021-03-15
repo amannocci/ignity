@@ -1,2 +1,2 @@
 #!/bin/execlineb -S0
-/etc/s6/init/stage3 $@
+/etc/s6/boot/stage3 $@

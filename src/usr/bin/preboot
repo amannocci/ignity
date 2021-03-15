@@ -1,0 +1,18 @@
+#!/bin/execlineb -S0
+
+/bin/importas -D /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin PATH PATH
+export PATH ${PATH}
+
+importas -D root USER USER
+importas -D 0 USERMAP_UID USERMAP_UID
+importas -D 0 USERMAP_GID USERMAP_GID
+
+foreground {
+  if -n { redirfd -c 2 /dev/null redirfd -c 1 /dev/null id -u "${USER}" }
+  if { groupadd -g "${USERMAP_GID}" "${USER}" }
+  if { useradd -M -u "${USERMAP_UID}" -g "${USERMAP_GID}" -s /bin/false "${USER}" }
+  if { s6-mkdir -pm 0755 -- /run/ignity }
+  if { chown ${USERMAP_UID}:${USERMAP_GID} /run/ignity }
+}
+
+$@

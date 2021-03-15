@@ -23,13 +23,16 @@ foreground {
       }
 
       # perms: apply user-provided ownership & permission fixes
-      /etc/s6/init/stage2-perms
+      /etc/s6/boot/stage2-envs
+
+      # perms: apply user-provided ownership & permission fixes
+      /etc/s6/boot/stage2-perms
 
       # init: one-time init scripts
-      /etc/s6/init/stage2-init
+      /etc/s6/boot/stage2-init
 
       # services: long-lived processes to be supervised
-      /etc/s6/init/stage2-services
+      /etc/s6/boot/stage2-services
     }
 
     importas -u ? ?

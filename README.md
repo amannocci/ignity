@@ -161,7 +161,7 @@ ENV \
   USERMAP_UID="1000" \
   USERMAP_GID="1000" \
   USER="exploit"
-RUN /etc/s6/init/stage2-perms
+RUN preboot
 USER ${USERMAP_UID}:${USERMAP_GID}
 ```
 
