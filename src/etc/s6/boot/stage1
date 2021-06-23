@@ -13,7 +13,6 @@ if {
 
 # Setup ignity context
 if { s6-mkdir -pm 0755 -- /run/ignity/envs }
-if { s6-mkdir -pm 0755 -- /run/ignity/perms }
 if { s6-mkdir -pm 0755 -- /run/ignity/init }
 if { s6-mkdir -pm 0755 -- /run/ignity/finalize }
 if { s6-mkdir -pm 0755 -- /run/ignity/services }

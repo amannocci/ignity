@@ -7,12 +7,38 @@ importas -D root USER USER
 importas -D 0 USERMAP_UID USERMAP_UID
 importas -D 0 USERMAP_GID USERMAP_GID
 
+# This env decides if we should fix permissions or not (default no)
+importas -D 0 IGNITY_SKIP_PERMS IGNITY_SKIP_PERMS
+
+ifelse {
+  s6-test ${IGNITY_SKIP_PERMS} -eq 1
+} {
+  $@
+}
+
 foreground {
   if -n { redirfd -c 2 /dev/null redirfd -c 1 /dev/null id -u "${USER}" }
   if { groupadd -g "${USERMAP_GID}" "${USER}" }
   if { useradd -M -u "${USERMAP_UID}" -g "${USERMAP_GID}" -s /bin/false "${USER}" }
   if { s6-mkdir -pm 0755 -- /run/ignity }
   if { chown ${USERMAP_UID}:${USERMAP_GID} /run/ignity }
+}
+
+if {
+  if -t { s6-test -d /etc/ignity/perms }
+  if { s6-echo -- "[ignity/perm] Applying ownership & permissions fixes" }
+  if {
+    pipeline { s6-ls -0 -- /etc/ignity/perms }
+    pipeline { s6-sort -0 -- }
+    forstdin -0 -- i
+    importas -u i i
+    if { s6-echo -- "[ignity/perm] Applying ownership & permission fixes: ${i}... " }
+    foreground { redirfd -r 0 /etc/ignity/perms/${i} fix-perms }
+    importas -u ? ?
+    if { s6-echo -- "[ignity/perm] Ownership & permission fixes ${i} exited ${?}." }
+    exit ${?}
+  }
+  if { s6-echo -- "[ignity/perm] Ownership & permissions fixes applied" }
 }
 
 $@

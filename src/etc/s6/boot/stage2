@@ -22,11 +22,8 @@ foreground {
         exit ${?}
       }
 
-      # perms: apply user-provided ownership & permission fixes
+      # envs: apply user-provided ownership & permission fixes
       /etc/s6/boot/stage2-envs
-
-      # perms: apply user-provided ownership & permission fixes
-      /etc/s6/boot/stage2-perms
 
       # init: one-time init scripts
       /etc/s6/boot/stage2-init
