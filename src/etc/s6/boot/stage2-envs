@@ -7,10 +7,11 @@ if {
   if -t { s6-test -d /etc/ignity/envs }
   if { s6-echo "[ignity/env] Loading environment files" }
   if {
-    pipeline { s6-ls -0 -- /etc/ignity/envs }
-    pipeline { s6-sort -0 -- }
-    forstdin -o 0 -0 -- i
-    importas -u file i
+    elglob -s -0 g "/etc/ignity/envs/*"
+    forx -o 0 d { ${g} }
+    importas -ui d d
+    backtick -n i { s6-basename "${d}" }
+    importas -ui file i
     if { s6-echo -- "[ignity/env] Loading environment file: ${file}..." }
     redirfd -r 0 /etc/ignity/envs/${file} load-envfile
     if { s6-dumpenv "/run/ignity/envs" }

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Strict mode
+set -eo pipefail
+trap 's=$?; echo >&2 "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
+
 # Found current script directory
 readonly RELATIVE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 

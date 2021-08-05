@@ -6,29 +6,29 @@ readonly SKALIBS_URL="https://github.com/skarnet/skalibs.git"
 readonly EXECLINE_URL="https://github.com/skarnet/execline.git"
 readonly S6_URL="https://github.com/skarnet/s6.git"
 readonly S6_PORTABLE_UTILS_URL="https://github.com/skarnet/s6-portable-utils.git"
-readonly SKALIBS_VERSION="2.9.2.1"
-readonly EXECLINE_VERSION="2.6.1.0"
-readonly S6_VERSION="2.9.2.0"
-readonly S6_PORTABLE_UTILS_VERSION="2.2.2.4"
+readonly SKALIBS_VERSION="2.10.0.3"
+readonly EXECLINE_VERSION="2.8.0.1"
+readonly S6_VERSION="2.10.0.3"
+readonly S6_PORTABLE_UTILS_VERSION="2.2.3.2"
 BUILD_DEPENDENCIES="ca-certificates build-essential git"
 
 # Fine tuning
 export DEBIAN_FRONTEND=noninteractive
 
-function log::action() {
+function log::action {
   echo -e "\033[33m⇒\033[0m $*"
 }
 
-function log::failure() {
+function log::failure {
   echo -e "\033[31m✗\033[0m Failed to $*"
 }
 
-function log::success() {
+function log::success {
   echo -e "\033[32m✓\033[0m Succeeded to $*"
 }
 
 # Notify only errors
-function process::try() {
+function process::try {
   "${@:2}"
   status="$?"
   if [ "$status" -eq 0 ]; then
@@ -40,7 +40,7 @@ function process::try() {
 }
 
 # Compile and install dependencies
-function pkg::install() {
+function pkg::install {
   process::try "clone ${1} v${2}" git clone -q -b "v${2}" --depth 1 "${3}" "/tmp/${1}"
   cd "/tmp/${1}"
   process::try "configure ${1} v${2}" ./configure ${4}

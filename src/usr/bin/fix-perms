@@ -7,7 +7,7 @@ importas -D 0 -u USERMAP_UID USERMAP_UID
 importas -D 0 -u USERMAP_GID USERMAP_GID
 
 # Process each line
-forstdin -d"\n" -- line
+forstdin -N -d"\n" -- line
 importas -u line line
 
 # Test each line isn't empty

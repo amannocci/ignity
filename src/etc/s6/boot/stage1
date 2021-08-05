@@ -5,10 +5,10 @@ preboot
 
 ## For consistency cleanup ignity run directory
 if {
-  pipeline { s6-ls -0 -- /run/ignity }
-  forstdin -o 0 -0 -- i
-  importas -u file i
-  s6-rmrf -- /run/ignity/${file}
+  elglob -0 g "/run/ignity/*"
+  forx -o 0 d { ${g} }
+  importas -ui d d
+  s6-rmrf -- ${d}
 }
 
 # Setup ignity context

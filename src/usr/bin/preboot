@@ -17,7 +17,7 @@ ifelse {
 }
 
 foreground {
-  if -n { redirfd -c 2 /dev/null redirfd -c 1 /dev/null id -u "${USER}" }
+  if -n { redirfd -a 2 /dev/null redirfd -a 1 /dev/null id -u "${USER}" }
   if { groupadd -g "${USERMAP_GID}" "${USER}" }
   if { useradd -M -u "${USERMAP_UID}" -g "${USERMAP_GID}" -s /bin/false "${USER}" }
   if { s6-mkdir -pm 0755 -- /run/ignity }
@@ -28,10 +28,11 @@ if {
   if -t { s6-test -d /etc/ignity/perms }
   if { s6-echo -- "[ignity/perm] Applying ownership & permissions fixes" }
   if {
-    pipeline { s6-ls -0 -- /etc/ignity/perms }
-    pipeline { s6-sort -0 -- }
-    forstdin -0 -- i
-    importas -u i i
+    elglob -s -0 g "/etc/ignity/perms/*"
+    forx d { ${g} }
+    importas -ui d d
+    backtick -n i { s6-basename "${d}" }
+    importas -ui i i
     if { s6-echo -- "[ignity/perm] Applying ownership & permission fixes: ${i}... " }
     foreground { redirfd -r 0 /etc/ignity/perms/${i} fix-perms }
     importas -u ? ?

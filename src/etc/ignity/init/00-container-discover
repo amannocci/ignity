@@ -1,4 +1,4 @@
 #!/bin/execlineb -P
 foreground { s6-echo "Operating system info" }
-foreground { s6-cat /proc/version }
+foreground { redirfd -r 0 /proc/version s6-cat }
 foreground { container-discover }

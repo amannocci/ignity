@@ -48,7 +48,7 @@ foreground {
   foreground { redirfd -w 1 /run/ignity/envs/IGNITY_STAGE2_EXITED s6-echo -n -- "${?}" }
 
   # Stop supervision tree
-  foreground { s6-svscanctl -t /run/ignity/services-state }
+  foreground { s6-svscanctl -tb /run/ignity/services-state }
 
   # Wait to be nuked
   s6-pause -th
