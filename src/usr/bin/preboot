@@ -29,7 +29,7 @@ if {
   if { s6-echo -- "[ignity/perm] Applying ownership & permissions fixes" }
   if {
     elglob -s -0 g "/etc/ignity/perms/*"
-    forx d { ${g} }
+    forx -o 0 d { ${g} }
     importas -ui d d
     backtick -n i { s6-basename "${d}" }
     importas -ui i i
