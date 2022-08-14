@@ -6,10 +6,10 @@ readonly SKALIBS_URL="https://github.com/skarnet/skalibs.git"
 readonly EXECLINE_URL="https://github.com/skarnet/execline.git"
 readonly S6_URL="https://github.com/skarnet/s6.git"
 readonly S6_PORTABLE_UTILS_URL="https://github.com/skarnet/s6-portable-utils.git"
-readonly SKALIBS_VERSION="2.11.2.0"
-readonly EXECLINE_VERSION="2.8.3.0"
-readonly S6_VERSION="2.11.1.0"
-readonly S6_PORTABLE_UTILS_VERSION="2.2.4.0"
+readonly SKALIBS_VERSION="2.12.0.1"
+readonly EXECLINE_VERSION="2.9.0.1"
+readonly S6_VERSION="2.11.1.2"
+readonly S6_PORTABLE_UTILS_VERSION="2.2.5.0"
 BUILD_DEPENDENCIES="ca-certificates build-essential git"
 
 # Fine tuning
@@ -66,7 +66,7 @@ dpkg -l | awk '{print $2;}' > /tmp/after
 BUILD_DEPENDENCIES=$(diff /tmp/before /tmp/after | grep ">" | awk '{print $2;}')
 
 # Purge build dependencies and cleanup apt
-DEBIAN_FRONTEND=noninteractive apt-get purge -y --auto-remove ${BUILD_DEPENDENCIES}
+apt-get purge -y --auto-remove ${BUILD_DEPENDENCIES}
 apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
 # Auto remove
