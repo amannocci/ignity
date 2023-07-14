@@ -22,10 +22,10 @@ function command::check() {
   log::action "Checking if needed commands are installs"
   case "${1}" in
     test)
-      command::is_present "docker"
+      helper::commands_are_present "podman"
       ;;
     package)
-      command::is_present "tar"
+      helper::commands_are_present "tar"
       ;;
     *)
       log::failure "interpret argument '${arg}'"
@@ -57,9 +57,9 @@ function command::test() {
 
   local status=0
   for kind in "${kinds[@]}"; do
-    local docker_image_tag=$(tr -dc a-z </dev/urandom | head -c 16 ; echo '')
+    local docker_image_tag; docker_image_tag=$(str::random)
     echo "Building docker image with tag: ignity-${docker_image_tag}"
-    DOCKER_IMAGE_TAG=${docker_image_tag} DOCKERFILE_PATH="tests/${kind}/Dockerfile.tpl" docker::build
+    DOCKER_IMAGE_TAG=${docker_image_tag} DOCKERFILE_PATH="tests/${kind}/Dockerfile.tpl" podman::build
     export DOCKER_IMAGE="ignity-${docker_image_tag}"
     bats -t "${BASE_PROJECT}/tests/${kind}"
     status=$?
@@ -73,7 +73,7 @@ function command::test() {
 function command::package() {
   log::action "Creating dist directory"
   rm -rf dist && mkdir -p dist
-  process::try_quiet "Creating tar archive" tar zcvf dist/ignity.tar.gz -C src/ .
+  SILENT_STDOUT="true" helper::try "Creating tar archive" tar zcvf dist/ignity.tar.gz -C src/ .
 }
 
 # Parse argument

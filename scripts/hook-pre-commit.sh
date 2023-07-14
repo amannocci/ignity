@@ -21,5 +21,5 @@ if [ "$(diff "${BASE_PROJECT}/scripts/hook-pre-commit.sh" "${HOOK_DIR}/pre-commi
 fi
 
 # Validate project
-process::try "test project" "${BASE_PROJECT}/scripts/workflow.sh" test
+helper::try "test project" "${BASE_PROJECT}/scripts/workflow.sh" test
 log::success "validate project"

@@ -11,8 +11,8 @@ source "${RELATIVE_DIR}/../../scripts/lib.sh"
 FILENAME=${BASE_PROJECT}/.git/${1##*/}
 
 # Validate commit message prefix
-test "" != "$(grep -E '^\[(Added|Updated|Removed|Improved|Fixed|Released)\]' "${FILENAME}")" || {
-  log::failure "validate prefix in commit message (Added|Fixed|Updated|Removed|Improved|Released)"
+test "" != "$(grep -E '^(build|ci|docs|feat|fix|perf|refactor|test|chore)' "${FILENAME}")" || {
+  log::failure "validate prefix in commit message (build|ci|docs|feat|fix|perf|refactor|test|chore)"
   exit 1
 }
 log::success "check commit message"

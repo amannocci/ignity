@@ -7,7 +7,7 @@
 * [Contact](mailto:adrien.mannocci@gmail.com)
 
 ## Prerequisites
-* [Docker](https://docs.docker.com/get-docker/) for development.
+* [Podman](https://podman.io/docs/installation) for development.
 
 ## Features
 * Low memory overhead
