@@ -11,7 +11,7 @@ importas -D 0 USERMAP_GID USERMAP_GID
 importas -D 0 IGNITY_SKIP_PERMS IGNITY_SKIP_PERMS
 
 ifelse {
-  s6-test ${IGNITY_SKIP_PERMS} -eq 1
+  eltest ${IGNITY_SKIP_PERMS} -eq 1
 } {
   $@
 }
@@ -25,7 +25,7 @@ foreground {
 }
 
 if {
-  if -t { s6-test -d /etc/ignity/perms }
+  if -t { eltest -d /etc/ignity/perms }
   if { s6-echo -- "[ignity/perm] Applying ownership & permissions fixes" }
   if {
     elglob -s -0 g "/etc/ignity/perms/*"

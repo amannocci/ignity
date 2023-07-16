@@ -1,7 +1,7 @@
 #!/bin/execlineb -S0
 
 if {
-  if -t { s6-test -d /run/ignity/services }
+  if -t { eltest -d /run/ignity/services }
   if { s6-echo "[ignity/service] Starting services" }
   if {
     elglob -0 g "/run/ignity/services/*"
@@ -9,7 +9,7 @@ if {
     importas -ui d d
     backtick -n i { s6-basename "${d}" }
     importas -ui i i
-    if { s6-test -d /run/ignity/services/${i} }
+    if { eltest -d /run/ignity/services/${i} }
     s6-hiercopy /run/ignity/services/${i} /run/ignity/services-state/${i}
   }
   if { s6-svscanctl -a /run/ignity/services-state }
@@ -20,15 +20,15 @@ if {
       importas -D 5000 -u IGNITY_CMD_WAIT_FOR_SERVICES_MAXTIME IGNITY_CMD_WAIT_FOR_SERVICES_MAXTIME
     }
 
-    if -t { if { s6-test ${IGNITY_CMD_WAIT_FOR_SERVICES} -ne 0 } s6-test $# -ne 0 }
+    if -t { if { eltest ${IGNITY_CMD_WAIT_FOR_SERVICES} -ne 0 } eltest $# -ne 0 }
     s6-maximumtime -t ${IGNITY_CMD_WAIT_FOR_SERVICES_MAXTIME}
     elglob -0 g "/run/ignity/services-state/*"
     forx -o 0 d { ${g} }
     importas -ui d d
     backtick -n i { s6-basename "${d}" }
     importas -ui i i
-    ifelse { s6-test -f /run/ignity/services-state/${i}/down } { exit 0 }
-    ifelse { s6-test -f /run/ignity/services-state/${i}/notification-fd }
+    ifelse { eltest -f /run/ignity/services-state/${i}/down } { exit 0 }
+    ifelse { eltest -f /run/ignity/services-state/${i}/notification-fd }
     { s6-svwait -t ${IGNITY_CMD_WAIT_FOR_SERVICES_MAXTIME} -U /run/ignity/services-state/${i} }
     s6-svwait -t ${IGNITY_CMD_WAIT_FOR_SERVICES_MAXTIME} -u /run/ignity/services-state/${i}
   }

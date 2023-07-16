@@ -4,7 +4,7 @@ if { s6-mkdir -pm 0755 -- /run/ignity/envs-container }
 if { s6-dumpenv "/run/ignity/envs-container" }
 
 if {
-  if -t { s6-test -d /etc/ignity/envs }
+  if -t { eltest -d /etc/ignity/envs }
   if { s6-echo "[ignity/env] Loading environment files" }
   if {
     elglob -s -0 g "/etc/ignity/envs/*"

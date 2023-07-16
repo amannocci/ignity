@@ -11,7 +11,7 @@ forstdin -N -d"\n" -- line
 importas -d"\n" -n -u line line
 
 # Test each line isn't empty
-if { s6-test -n ${line} }
+if { eltest -n ${line} }
 
 # Split each line
 multidefine -0 -Cd" \t" -- ${line} { path uidgid fmode dmode }
@@ -24,7 +24,7 @@ importas -u UID_GID UID_GID
 multidefine -Cd":" -- ${UID_GID} { uid gid }
 
 # Check path exists
-if { s6-test -e ${path} }
+if { eltest -e ${path} }
 
 # Fix owners
 pipeline { find "${path}" ( -not -gid "${gid}" -or -not -uid "${uid}" ) -print0 }

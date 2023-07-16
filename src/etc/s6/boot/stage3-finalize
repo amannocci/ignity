@@ -2,7 +2,7 @@
 
 importas -D 5000 -u IGNITY_KILL_FINALIZE_MAXTIME IGNITY_KILL_FINALIZE_MAXTIME
 if {
-  if -t { s6-test -d /run/ignity/finalize }
+  if -t { eltest -d /run/ignity/finalize }
   if { s6-echo "[ignity/finalize] Executing container finalize scripts..." }
   if {
     elglob -s -0 g "/run/ignity/finalize/*"

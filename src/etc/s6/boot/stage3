@@ -15,7 +15,7 @@ foreground { /etc/s6/boot/stage3-finalize }
 # Wait service down
 foreground { s6-echo "[ignity/finalize] Waiting for services" }
 foreground {
-  if { s6-test -f /run/ignity/services-state }
+  if { eltest -f /run/ignity/services-state }
   importas -D 16000 -u IGNITY_SERVICES_GRACETIME IGNITY_SERVICES_GRACETIME
   elglob SERVICES /run/ignity/services-state/*
   foreground { s6-svwait -D -t ${IGNITY_SERVICES_GRACETIME} ${SERVICES} }
@@ -24,7 +24,7 @@ foreground {
 
 # Sync before TERM'n
 foreground {
-  if { s6-test ${IGNITY_SYNC_DISKS} -eq 1 }
+  if { eltest ${IGNITY_SYNC_DISKS} -eq 1 }
   foreground { s6-echo "[ignity/finalize] Syncing disks" }
   foreground { s6-sync }
 }
@@ -48,7 +48,7 @@ foreground { s6-nuke -k } # foreground is process 1: it survives again
 # Reap all the zombies then sync, and we're done.
 wait { }
 foreground {
-  if { s6-test ${IGNITY_SYNC_DISKS} -eq 1 }
+  if { eltest ${IGNITY_SYNC_DISKS} -eq 1 }
   s6-sync
 }
 

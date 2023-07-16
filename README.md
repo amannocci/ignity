@@ -120,8 +120,8 @@ s6-svscanctl -t /run/ignity/services-state
 `/etc/ignity/services/myapp/finish`:
 ```
 #!/bin/execlineb -S1
-if { s6-test ${1} -ne 0 }
-if { s6-test ${1} -ne 256 }
+if { eltest ${1} -ne 0 }
+if { eltest ${1} -ne 256 }
 
 s6-svscanctl -t /run/ignity/services-state
 ```

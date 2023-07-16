@@ -13,7 +13,7 @@ foreground {
         foreground {
           forx i { "init" "finalize" "services" }
           importas -u i i
-          if { s6-test -d /etc/ignity/${i} }
+          if { eltest -d /etc/ignity/${i} }
           # although s6-hiercopy is prefered, and until it doesn't support 'follow symlinks'
           # option, there is no clean way to allow symlinks between user provided runcoms.
           if { s6-hiercopy /etc/ignity/${i} /run/ignity/${i} }
@@ -38,7 +38,7 @@ foreground {
   }
 
   # The init is complete, If the user has a given CMD, run it now, then kill everything when it exits.
-  if -t { s6-test $# -ne 0 }
+  if -t { eltest $# -ne 0 }
   foreground { with-env s6-setsid -gq -- $@ }
 
   importas -u ? ?
@@ -55,5 +55,5 @@ foreground {
 }
 
 importas -u ? ?
-if { s6-test ${?} -ne 0 }
+if { eltest ${?} -ne 0 }
 s6-svscanctl -t /run/ignity/services-state
