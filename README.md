@@ -7,6 +7,7 @@
 * [Contact](mailto:adrien.mannocci@gmail.com)
 
 ## Prerequisites
+* [Taskfile](https://taskfile.dev/) for development.
 * [Podman](https://podman.io/docs/installation) for development.
 
 ## Features
@@ -16,18 +17,18 @@
 * Reliable supervision
 * Allow high inheritance
 
-## Develop
+## Workflow
 
 ### Setup
 The following steps will ensure your project is cloned properly.
 1. `git clone https://github.com/amannocci/ignity`
-2. `cd ignity && ./scripts/workflow.sh setup`
+2. `cd ignity && task setup`
 
 ### Test
 * To test you have to use the workflow script.
 
 ```bash
-./scripts/workflow.sh test
+task test
 ```
 
 * It will test project code with the current environment.
@@ -36,7 +37,7 @@ The following steps will ensure your project is cloned properly.
 * To package you have to use the workflow script.
 
 ```bash
-./scripts/workflow.sh package
+task package
 ```
 
 * It will create a tar archive containing ignity.
