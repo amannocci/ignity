@@ -1,0 +1,24 @@
+---
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Task
+        uses: arduino/setup-task@v1
+      - name: Install dependencies
+        run: sudo apt install -y bats
+      - name: Run tests
+        run: task test
