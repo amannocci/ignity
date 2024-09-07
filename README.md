@@ -36,6 +36,12 @@
 - Reliable supervision
 - Allow high inheritance
 
+## :dart: Motivation
+
+- We needed a way manage multiples processes within a single container.
+- The solution should be memory efficient.
+- The solution should be reliable and allow fast startup.
+
 ## :hammer: Workflow
 
 ### Setup
