@@ -15,9 +15,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Task
-        uses: arduino/setup-task@v1
+        uses: arduino/setup-task@v2
       - name: Install dependencies
         run: sudo apt install -y bats
       - name: Run tests
