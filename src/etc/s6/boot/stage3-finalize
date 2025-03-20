@@ -3,22 +3,22 @@
 importas -D 5000 -u IGNITY_KILL_FINALIZE_MAXTIME IGNITY_KILL_FINALIZE_MAXTIME
 if {
   if -t { eltest -d /run/ignity/finalize }
-  if { s6-echo "[ignity/finalize] Executing container finalize scripts..." }
+  if { s6-echo "[supervisor/finalize] Executing container finalize scripts..." }
   if {
     elglob -s -0 g "/run/ignity/finalize/*"
     forx -o 0 d { ${g} }
     importas -ui d d
     backtick -n i { s6-basename "${d}" }
     importas -ui i i
-    if { s6-echo -- "[ignity/finalize] Executing finalize script: ${i}... " }
+    if { s6-echo -- "[supervisor/finalize] Executing finalize script: ${i}... " }
     foreground {
       s6-maximumtime -k ${IGNITY_KILL_FINALIZE_MAXTIME}
       /run/ignity/finalize/${i}
     }
     importas -u ? ?
-    s6-echo -- "[ignity/finalize] Finalize script ${i} exited ${?}."
+    s6-echo -- "[supervisor/finalize] Finalize script ${i} exited ${?}."
   }
-  s6-echo -- "[ignity/finalize] Finalize scripts executed"
+  s6-echo -- "[supervisor/finalize] Finalize scripts executed"
 }
 
 $@

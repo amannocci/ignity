@@ -13,7 +13,7 @@ importas -D 1 -u IGNITY_SYNC_DISKS IGNITY_SYNC_DISKS
 foreground { /etc/s6/boot/stage3-finalize }
 
 # Wait service down
-foreground { s6-echo "[ignity/finalize] Waiting for services" }
+foreground { s6-echo "[supervisor/finalize] Waiting for services" }
 foreground {
   if { eltest -f /run/ignity/services-state }
   importas -D 16000 -u IGNITY_SERVICES_GRACETIME IGNITY_SERVICES_GRACETIME
@@ -25,12 +25,12 @@ foreground {
 # Sync before TERM'n
 foreground {
   if { eltest ${IGNITY_SYNC_DISKS} -eq 1 }
-  foreground { s6-echo "[ignity/finalize] Syncing disks" }
+  foreground { s6-echo "[supervisor/finalize] Syncing disks" }
   foreground { s6-sync }
 }
 
 # Kill everything, gently.
-foreground { s6-echo "[ignity/finalize] Sending all processes the KILL signal" }
+foreground { s6-echo "[supervisor/finalize] Sending all processes the KILL signal" }
 foreground { s6-nuke -th } # foreground is process 1: it survives
 foreground {
   importas -D 3000 -u IGNITY_KILL_GRACETIME IGNITY_KILL_GRACETIME
@@ -38,7 +38,7 @@ foreground {
 }
 
 # Last message, then close our pipes and give the logger some time.
-foreground { s6-echo "[ignity/finalize] Sending all processes the KILL signal and exiting" }
+foreground { s6-echo "[supervisor/finalize] Sending all processes the KILL signal and exiting" }
 fdclose 1 fdclose 2
 s6-sleep -m 200
 

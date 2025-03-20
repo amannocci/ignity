@@ -19,7 +19,7 @@ BASE_PROJECT="$(dirname "${RELATIVE_DIR}")"
 # Outputs:
 #   Log a message as action.
 #######################################
-function log::action {
+function log::action() {
   local disable_console_colors; disable_console_colors=$(env::get_or_empty "DISABLE_CONSOLE_COLORS")
   if [ -z "${disable_console_colors}" ]; then
     echo -e "\033[33m⇒\033[0m ${@}"
@@ -37,7 +37,7 @@ function log::action {
 # Outputs:
 #   Log a message as failure.
 #######################################
-function log::failure {
+function log::failure() {
   local disable_console_colors; disable_console_colors=$(env::get_or_empty "DISABLE_CONSOLE_COLORS")
   if [ -z "${disable_console_colors}" ]; then
     echo -e "\033[31m✗\033[0m Failed to ${@}" >&2
@@ -55,7 +55,7 @@ function log::failure {
 # Outputs:
 #   Log a message as success.
 #######################################
-function log::success {
+function log::success() {
   local disable_console_colors; disable_console_colors=$(env::get_or_empty "DISABLE_CONSOLE_COLORS")
   if [ -z "${disable_console_colors}" ]; then
     echo -e "\033[32m✓\033[0m Succeeded to ${@}"
@@ -72,7 +72,7 @@ function log::success {
 #   0 if the command is present.
 #   1 otherwise.
 #######################################
-function helper::commands_are_present {
+function helper::commands_are_present() {
   for cmd in "${@}"; do
     if ! [ -x "$(command -v "${cmd}")" ]; then
       helper::raise_error "locate command '${cmd}'"
@@ -87,7 +87,7 @@ function helper::commands_are_present {
 # Returns:
 #   Always exit 1.
 #######################################
-function helper::raise_error {
+function helper::raise_error() {
   log::failure "$@"
   exit 1
 }
@@ -102,7 +102,7 @@ function helper::raise_error {
 # Returns:
 #   Exit status of the command executed.
 #######################################
-function helper::exec {
+function helper::exec() {
   local silent_stdout; silent_stdout=$(env::get_or_empty "SILENT_STDOUT")
   local silent_stderr; silent_stderr=$(env::get_or_empty "SILENT_STDERR")
   local err_exit_ctx=$(shopt -o errexit)
@@ -136,7 +136,7 @@ function helper::exec {
 # Returns:
 #   Exit status of the command executed.
 #######################################
-function helper::try {
+function helper::try() {
   helper::exec ${@:2}
   local status=$?
   if [ ${status} -eq 0 ]; then
@@ -163,7 +163,7 @@ function helper::try {
 #   0 if the environment variable is present.
 #   1 otherwise.
 #######################################
-function env::get {
+function env::get() {
   local var; var=$(printf '%s\n' "${!1}")
   if [ -z "${var}" ]; then
     helper::raise_error "retrieve environment '${1}' variable"
@@ -179,7 +179,7 @@ function env::get {
 # Outputs:
 #   Environment variable value or default value.
 #######################################
-function env::get_or_default {
+function env::get_or_default() {
   local var; var=$(printf '%s\n' "${!1}")
   if [ -z "${var}" ]; then
     echo -e "${2}"
@@ -195,7 +195,7 @@ function env::get_or_default {
 # Outputs:
 #   Environment variable value or empty value.
 #######################################
-function env::get_or_empty {
+function env::get_or_empty() {
   env::get_or_default "${1}" ""
 }
 
@@ -209,7 +209,7 @@ function env::get_or_empty {
 #   0 if the environment variable is present or readed.
 #   1 otherwise.
 #######################################
-function env::get_or_read {
+function env::get_or_read() {
   local var; var=$(printf '%s\n' "${!1}")
   if [ -z "${var}" ]; then
     read -p "Value for ${1}: `echo $'\n> '`" var
@@ -222,7 +222,7 @@ function env::get_or_read {
 # Outputs:
 #   Random char sequence containing alphanumeric.
 #######################################
-function str::random {
+function str::random() {
   cat /dev/urandom | env LC_ALL="C.UTF-8" LANG="C.UTF-8" LC_CTYPE="C" tr -dc 'a-z0-9' | fold -w 32 | head -n 1
 }
 

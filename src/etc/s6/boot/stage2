@@ -9,7 +9,6 @@ foreground {
     foreground {
       # Copy user provided files to /run/ignity.
       if {
-        if { s6-echo -n -- "[ignity/boot] Making user provided files available at /run/ignity" }
         foreground {
           forx i { "init" "finalize" "services" }
           importas -u i i
@@ -33,7 +32,7 @@ foreground {
     }
 
     importas -u ? ?
-    foreground { redirfd -w 1 /run/ignity/envs/IGNITY_STAGE2_EXITED s6-echo -n -- "${?}" } 
+    foreground { redirfd -w 1 /run/ignity/envs/IGNITY_STAGE2_EXITED s6-echo -n -- "${?}" }
     exit ${?}
   }
 
@@ -42,7 +41,7 @@ foreground {
   foreground { with-env s6-setsid -gq -- $@ }
 
   importas -u ? ?
-  foreground { s6-echo -- "[ignity/cmd] ${1} exited ${?}" }
+  foreground { s6-echo -- "[supervisor/cmd] ${1} exited ${?}" }
 
   # Make CMD exit code available in stage3
   foreground { redirfd -w 1 /run/ignity/envs/IGNITY_STAGE2_EXITED s6-echo -n -- "${?}" }

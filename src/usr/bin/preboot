@@ -26,20 +26,20 @@ foreground {
 
 if {
   if -t { eltest -d /etc/ignity/perms }
-  if { s6-echo -- "[ignity/perm] Applying ownership & permissions fixes" }
+  if { s6-echo -- "[supervisor/perm] Applying ownership & permissions fixes" }
   if {
     elglob -s -0 g "/etc/ignity/perms/*"
     forx -o 0 d { ${g} }
     importas -ui d d
     backtick -n i { s6-basename "${d}" }
     importas -ui i i
-    if { s6-echo -- "[ignity/perm] Applying ownership & permission fixes: ${i}... " }
+    if { s6-echo -- "[supervisor/perm] Applying ownership & permission fixes: ${i}... " }
     foreground { redirfd -r 0 /etc/ignity/perms/${i} fix-perms }
     importas -u ? ?
-    if { s6-echo -- "[ignity/perm] Ownership & permission fixes ${i} exited ${?}." }
+    if { s6-echo -- "[supervisor/perm] Ownership & permission fixes ${i} exited ${?}." }
     exit ${?}
   }
-  if { s6-echo -- "[ignity/perm] Ownership & permissions fixes applied" }
+  if { s6-echo -- "[supervisor/perm] Ownership & permissions fixes applied" }
 }
 
 $@

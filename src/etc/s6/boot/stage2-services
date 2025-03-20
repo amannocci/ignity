@@ -2,7 +2,7 @@
 
 if {
   if -t { eltest -d /run/ignity/services }
-  if { s6-echo "[ignity/service] Starting services" }
+  if { s6-echo "[supervisor/service] Starting services" }
   if {
     elglob -0 g "/run/ignity/services/*"
     forx -o 0 -p d { ${g} }
@@ -32,7 +32,7 @@ if {
     { s6-svwait -t ${IGNITY_CMD_WAIT_FOR_SERVICES_MAXTIME} -U /run/ignity/services-state/${i} }
     s6-svwait -t ${IGNITY_CMD_WAIT_FOR_SERVICES_MAXTIME} -u /run/ignity/services-state/${i}
   }
-  if { s6-echo -- "[ignity/service] Services started" }
+  if { s6-echo -- "[supervisor/service] Services started" }
 }
 
 $@
