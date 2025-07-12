@@ -33,10 +33,8 @@ if {
     importas -ui d d
     backtick -n i { s6-basename "${d}" }
     importas -ui i i
-    if { s6-echo -- "[supervisor/perm] Applying ownership & permission fixes: ${i}... " }
     foreground { redirfd -r 0 /etc/ignity/perms/${i} fix-perms }
     importas -u ? ?
-    if { s6-echo -- "[supervisor/perm] Ownership & permission fixes ${i} exited ${?}." }
     exit ${?}
   }
   if { s6-echo -- "[supervisor/perm] Ownership & permissions fixes applied" }

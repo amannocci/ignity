@@ -10,11 +10,6 @@ export DOCKER_ARGS="-e IGNITY_KILL_GRACETIME=0 -e IGNITY_KILL_FINALIZE_MAXTIME=0
   [ "$?" -eq 0 ]
 }
 
-@test "check container-discover is installed" {
-  echo 'command -v container-discover' | podman::run
-  [ "$?" -eq 0 ]
-}
-
 @test "check fix-perms is installed" {
   echo 'command -v fix-perms' | podman::run
   [ "$?" -eq 0 ]

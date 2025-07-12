@@ -2,20 +2,18 @@
 
 if {
   if -t { eltest -d /run/ignity/init }
-  if { s6-echo "[supervisor/init] Executing container init scripts" }
+  if { s6-echo "[supervisor/init] Executing environment init scripts" }
   if {
     elglob -s -0 g "/run/ignity/init/*"
     forx -o 0 d { ${g} }
     importas -ui d d
     backtick -n i { s6-basename "${d}" }
     importas -ui i i
-    if { s6-echo -- "[supervisor/init] Executing init script: ${i}..." }
     foreground { /run/ignity/init/${i} }
     importas -u ? ?
-    if { s6-echo -- "[supervisor/init] Init script ${i} exited ${?}." }
     exit ${?}
   }
-  if { s6-echo -- "[supervisor/init] Init scripts executed" }
+  if { s6-echo -- "[supervisor/init] Environment init scripts executed" }
 }
 
 $@
