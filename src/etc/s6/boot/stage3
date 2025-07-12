@@ -30,20 +30,20 @@ foreground {
 }
 
 # Kill everything, gently.
-foreground { s6-echo "[supervisor/finalize] Sending all processes the KILL signal" }
-foreground { s6-nuke -th } # foreground is process 1: it survives
+foreground { s6-echo "[supervisor/finalize] Sending all processes the termination signals" }
+foreground { redirfd -a 2 /dev/null redirfd -a 1 /dev/null s6-nuke -th } # foreground is process 1: it survives
 foreground {
   importas -D 3000 -u IGNITY_KILL_GRACETIME IGNITY_KILL_GRACETIME
   s6-sleep -m -- ${IGNITY_KILL_GRACETIME}
 }
 
 # Last message, then close our pipes and give the logger some time.
-foreground { s6-echo "[supervisor/finalize] Sending all processes the KILL signal and exiting" }
+foreground { s6-echo "[supervisor/finalize] Sending all processes the kill signal and exiting" }
 fdclose 1 fdclose 2
 s6-sleep -m 200
 
 # Kill everything, brutally.
-foreground { s6-nuke -k } # foreground is process 1: it survives again
+foreground { redirfd -a 2 /dev/null redirfd -a 1 /dev/null s6-nuke -k } # foreground is process 1: it survives again
 
 # Reap all the zombies then sync, and we're done.
 wait { }

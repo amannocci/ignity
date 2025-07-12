@@ -17,7 +17,7 @@ foreground {
           # option, there is no clean way to allow symlinks between user provided runcoms.
           if { s6-hiercopy /etc/ignity/${i} /run/ignity/${i} }
         }
-        importas -u ? ? if { s6-echo -- " exited ${?}." }
+        importas -u ? ?
         exit ${?}
       }
 
