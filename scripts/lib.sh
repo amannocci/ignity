@@ -223,7 +223,7 @@ function env::get_or_read() {
 #   Random char sequence containing alphanumeric.
 #######################################
 function str::random() {
-  cat /dev/urandom | env LC_ALL="C.UTF-8" LANG="C.UTF-8" LC_CTYPE="C" tr -dc 'a-z0-9' | fold -w 32 | head -n 1
+  openssl rand -hex 32
 }
 
 ########################################
@@ -249,7 +249,7 @@ function podman::container_prune() {
 ########################################
 function podman::build() {
   local docker_image_tag; docker_image_tag=$(env::get "DOCKER_IMAGE_TAG")
-  local docker_base_image; docker_base_image=$(env::get_or_default "DOCKER_BASE_IMAGE" "debian:latest")
+  local docker_base_image; docker_base_image=$(env::get_or_default "DOCKER_BASE_IMAGE" "debian:bookworm-slim")
   local dockerfile_path; dockerfile_path=$(env::get_or_default "DOCKERFILE_PATH" "Dockerfile.tpl")
 
   log::action "Generating dockerfile for project"
