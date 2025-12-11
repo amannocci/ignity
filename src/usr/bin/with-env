@@ -1,2 +1,2 @@
 #!/bin/execlineb -S0
-s6-envdir /run/ignity/envs $@
+s6-envdir -f /run/ignity/envs $@
